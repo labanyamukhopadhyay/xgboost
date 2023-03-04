@@ -9,7 +9,7 @@ import xgboost as xgb
 from xgboost import testing as tm
 
 try:
-    import pandas as pd
+    import modin.pandas as pd
 except ImportError:
     pass
 
@@ -168,7 +168,7 @@ class TestPandas:
         assert Xy.num_col() == 1
 
     def test_pandas_sparse(self):
-        import pandas as pd
+        import modin.pandas as pd
 
         rows = 100
         X = pd.DataFrame(
@@ -238,6 +238,7 @@ class TestPandas:
         }
 
         cv = xgb.cv(params, dm, num_boost_round=10, nfold=10)
+        print(type(cv))
         assert isinstance(cv, pd.DataFrame)
         exp = pd.Index(
             ["test-error-mean", "test-error-std", "train-error-mean", "train-error-std"]
@@ -383,6 +384,8 @@ class TestPandas:
                 assert tm.predictor_equal(m_orig, m_etype)
 
             np.testing.assert_allclose(m_orig.get_label(), m_etype.get_label())
+            print(m_etype.get_label())
+            # print(y.values.astype(np.float32))
             np.testing.assert_allclose(m_etype.get_label(), y.values.astype(np.float32))
 
             if isinstance(df, pd.DataFrame):
